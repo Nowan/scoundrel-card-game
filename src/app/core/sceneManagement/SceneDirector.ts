@@ -5,6 +5,7 @@ import Scene from "./Scene";
 export class SceneDirector extends EventEmitter<Event> {
     private _app: App;
     private _activeScene: Scene | null;
+    private _activeSceneUpdate: ((ticker: Ticker) => void) | null = null;
 
     constructor(app: App) {
         super();
@@ -24,15 +25,20 @@ export class SceneDirector extends EventEmitter<Event> {
             scene.init(...args);
             this._resizeScene(scene);
 
-            if (scene.update) {
-                scene.ticker.add(scene.update);
-                scene.ticker.start();
-            }
-
             if (this._activeScene) {
+                if (this._activeSceneUpdate) {
+                    this._activeScene.ticker.remove(this._activeSceneUpdate);
+                    this._activeSceneUpdate = null;
+                }
                 this._activeScene.ticker.stop();
                 this._activeScene.destroy();
                 this._app.stage.removeChild(this._activeScene);
+            }
+
+            if (scene.update) {
+                this._activeSceneUpdate = scene.update.bind(scene);
+                scene.ticker.add(this._activeSceneUpdate);
+                scene.ticker.start();
             }
 
             this._app.stage.addChild(scene);

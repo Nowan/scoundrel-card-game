@@ -1,20 +1,12 @@
-import { Scene, SceneContext } from "../../core/sceneManagement";
+import { Scene } from "../../core/sceneManagement";
 import { Game } from "./Game";
 import { Assets, Ticker } from "pixi.js";
 import { Viewport, GameWorld } from "./components";
 
 export class GameScene extends Scene {
-    private _game: Game | null;
-    private _viewport: Viewport;
-    private _world: GameWorld;
-
-    constructor(context: SceneContext) {
-        super(context);
-
-        this._game = null;
-        this._world = new GameWorld();
-        this._viewport = this._createViewport(this._world);
-    }
+    private _viewport: Viewport = this._createViewport();
+    private _game: Game | null = null;
+    private _world: GameWorld | null = null;
 
     public async load(): Promise<void> {
         await Assets.loadBundle("game-scene");
@@ -22,6 +14,7 @@ export class GameScene extends Scene {
 
     public init(): void {
         this._game = this._createGame();
+        this._world = this._createWorld(this._viewport);
 
         this._game.start();
     }
@@ -32,24 +25,30 @@ export class GameScene extends Scene {
     }
 
     public update(ticker: Ticker): void {
-        this._game?.update(ticker.deltaMS / 1000);
+        this._world?.update(ticker);
     }
 
     public destroy() {
         this._game?.stop();
     }
 
-    private _createViewport(gameWorld: GameWorld): Viewport {
-        const viewport = new Viewport({
-            screenWidth: this.renderer.width,
-            screenHeight: this.renderer.height,
-            worldWidth: gameWorld.bounds.width,
-            worldHeight: gameWorld.bounds.height,
-        });
+    private _createViewport(): Viewport {
+        return this.addChild(
+            new Viewport({
+                screenWidth: this.renderer.width,
+                screenHeight: this.renderer.height,
+                worldWidth: this.renderer.width,
+                worldHeight: this.renderer.height,
+            })
+        );
+    }
 
-        viewport.worldContainer.addChild(gameWorld);
-
-        return this.addChild(viewport);
+    private _createWorld(viewport: Viewport): GameWorld {
+        const world = new GameWorld();
+        viewport.worldWidth = world.bounds.width;
+        viewport.worldHeight = world.bounds.height;
+        viewport.fitToWorld();
+        return viewport.worldContainer.addChild(world)
     }
 
     private _createGame(): Game {

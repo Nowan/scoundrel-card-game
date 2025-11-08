@@ -8,8 +8,24 @@
                     "src": "assets/textures/gui.json"
                 },
                 {
-                    "alias": "assets/textures/gui.png",
-                    "src": "assets/textures/gui.png"
+                    "alias": "assets/textures/cards-backs.json",
+                    "src": "assets/textures/cards-backs.json"
+                },
+                {
+                    "alias": "assets/textures/cards-clubs.json",
+                    "src": "assets/textures/cards-clubs.json"
+                },
+                {
+                    "alias": "assets/textures/cards-diamonds.json",
+                    "src": "assets/textures/cards-diamonds.json"
+                },
+                {
+                    "alias": "assets/textures/cards-hearts.json",
+                    "src": "assets/textures/cards-hearts.json"
+                },
+                {
+                    "alias": "assets/textures/cards-spades.json",
+                    "src": "assets/textures/cards-spades.json"
                 }
             ]
         }
