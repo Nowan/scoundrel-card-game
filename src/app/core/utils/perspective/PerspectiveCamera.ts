@@ -5,20 +5,22 @@ import { PointData3D } from "./PointData3D";
 export class PerspectiveCamera {
     position: PointData3D = { x: 0, y: 0, z: 0 };
     target: PointData3D = { x: 0, y: 0, z: 0 };
-    fieldOfVision: number = 45;
+    fieldOfView: number = 45;
+    viewport: { width: number, height: number } = { width: 1, height: 1 };
 
-    constructor(position?: PointData3D, target?: PointData3D, fieldOfVision?: number) {
-        this.position = position ?? this.position;
-        this.target = target ?? this.target;
-        this.fieldOfVision = fieldOfVision ?? this.fieldOfVision;
+    constructor(props: PerspectiveCameraProps = {}) {
+        this.position = props.position ?? this.position;
+        this.target = props.lookAt ?? this.target;
+        this.fieldOfView = props.fieldOfView ?? this.fieldOfView;
+        this.viewport = props.viewport ?? this.viewport;
     }
 
-    transformToViewport<VERTICES extends PointData3D[] = PointData3D[]>(vertices: VERTICES, offset: PointData3D, rotation: PointData3D, viewportWidth: number = 800, viewportHeight: number = 600): VERTICES {
+    transform<VERTICES extends PointData3D[] = PointData3D[]>(vertices: VERTICES, offset: PointData3D, rotation: PointData3D): VERTICES {
         const ndcs = this._calculateNormalizedDeviceCoordinates(vertices, offset, rotation);
 
         return ndcs.map(ndc => {
-            const x = (-ndc.x * 0.5 + 0.5) * viewportWidth;
-            const y = (-ndc.y * 0.5 + 0.5) * viewportHeight;
+            const x = (-ndc.x * 0.5 + 0.5) * this.viewport.width;
+            const y = (-ndc.y * 0.5 + 0.5) * this.viewport.height;
 
             return { x, y };
         }) as VERTICES;
@@ -36,45 +38,64 @@ export class PerspectiveCamera {
     }
 
     private _calculateModelViewProjectionMatrix(vertices: PointData3D[], offset: PointData3D, rotation: PointData3D): mat4 {
-        const modelMatrix = mat4.create();
-        const viewMatrix = mat4.create();
-        const projectionMatrix = mat4.create();
         const mvpMatrix = mat4.create();
-        const rotationPivot = {
-            x: (Math.max(...vertices.map(v => v.x)) + Math.min(...vertices.map(v => v.x))) * 0.5,
-            y: (Math.max(...vertices.map(v => v.y)) + Math.min(...vertices.map(v => v.y))) * 0.5,
-            z: (Math.max(...vertices.map(v => v.z)) + Math.min(...vertices.map(v => v.z))) * 0.5,
-        };
+        const modelMatrix = this._calculateModelMatrix(vertices, offset, rotation);
+        const viewMatrix = this._calculateViewMatrix();
+        const projectionMatrix = this._calculateProjectionMatrix();
 
-        // 1) Move model to world origin
+        mat4.multiply(mvpMatrix, viewMatrix, modelMatrix);
+        mat4.multiply(mvpMatrix, projectionMatrix, mvpMatrix);
+
+        return mvpMatrix;
+    }
+
+    _calculateModelMatrix(vertices: PointData3D[], offset: PointData3D, rotation: PointData3D): mat4 {
+        const modelMatrix = mat4.create();
+        const rotationPivot = this._calculateCentroid(vertices);
+
+        // Move model to world origin
         mat4.translate(modelMatrix, modelMatrix, [
             offset.x,
             offset.y,
             offset.z,
         ]);
 
-        // 2) Apply rotation (in radians)
+        // Apply rotation around rotationPivot (in radians)
         mat4.translate(modelMatrix, modelMatrix, [rotationPivot.x, rotationPivot.y, rotationPivot.z]);
         mat4.rotateX(modelMatrix, modelMatrix, (rotation.x * Math.PI) / 180);
         mat4.rotateY(modelMatrix, modelMatrix, (rotation.y * Math.PI) / 180);
         mat4.rotateZ(modelMatrix, modelMatrix, (rotation.z * Math.PI) / 180);
         mat4.translate(modelMatrix, modelMatrix, [-rotationPivot.x, -rotationPivot.y, -rotationPivot.z]);
 
-        // 3) View matrix
-        mat4.lookAt(
-            viewMatrix,
+        return modelMatrix;
+    }
+
+    _calculateViewMatrix(): mat4 {
+        return mat4.lookAt(
+            mat4.create(),
             [this.position.x, this.position.y, this.position.z],
             [this.target.x, this.target.y, this.target.z],
             [0, -1, 0]
         );
-
-        // 4) Projection matrix (perspective)
-        mat4.perspective(projectionMatrix, (this.fieldOfVision * Math.PI) / 180, 1, 0.1, 2000);
-
-        // 5) Final MVP = projection * view * model
-        mat4.multiply(mvpMatrix, viewMatrix, modelMatrix);
-        mat4.multiply(mvpMatrix, projectionMatrix, mvpMatrix);
-
-        return mvpMatrix;
     }
+
+    _calculateProjectionMatrix(): mat4 {
+        const aspectRatio = this.viewport.width / this.viewport.height;
+        return mat4.perspective(mat4.create(), (this.fieldOfView * Math.PI) / 180, aspectRatio, 0.1, 2000);
+    }
+
+    _calculateCentroid(vertices: PointData3D[]) {
+        return {
+            x: (Math.max(...vertices.map(v => v.x)) + Math.min(...vertices.map(v => v.x))) * 0.5,
+            y: (Math.max(...vertices.map(v => v.y)) + Math.min(...vertices.map(v => v.y))) * 0.5,
+            z: (Math.max(...vertices.map(v => v.z)) + Math.min(...vertices.map(v => v.z))) * 0.5,
+        };
+    }
+}
+
+export type PerspectiveCameraProps = {
+    position?: PointData3D,
+    lookAt?: PointData3D,
+    fieldOfView?: number,
+    viewport?: { width: number, height: number }
 }

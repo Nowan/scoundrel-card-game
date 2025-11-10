@@ -40,7 +40,7 @@ export class PerspectiveCard extends PerspectiveMesh {
     }
 
     public updatePerspective(camera: PerspectiveCamera) {
-        const corners = camera.transformToViewport(this.perspective.corners, this.perspective.offset, this.perspective.rotation);
+        const corners = camera.transform(this.perspective.corners, this.perspective.offset, this.perspective.rotation);
 
         this.setCorners(
             corners[0].x, corners[0].y,
