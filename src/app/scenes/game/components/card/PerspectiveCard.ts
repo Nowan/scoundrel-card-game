@@ -2,30 +2,27 @@ import { Graphics, PerspectiveMesh, Point, Texture, TextureSourceLike } from "pi
 import { PointData3D } from "../../../../core/utils/perspective/PointData3D";
 import { PerspectiveCamera } from "../../../../core/utils";
 import { animate } from "motion";
-import { vec3 } from "gl-matrix";
+import { CardRank, CardSuit } from "../../models";
+import { mapToCardFaceTexture } from "./mapToCardFaceTexture";
 
 export class PerspectiveCard extends PerspectiveMesh {
-    public readonly perspective: CardPerspectiveData = {
-        rotation: { x: 0, y: 0, z: 0 },
-        offset: { x: 0, y: 0, z: 0 },
-        corners: [
-            { x: 0, y: 0, z: 0 },
-            { x: this.texture.width, y: 0, z: 0 },
-            { x: this.texture.width, y: this.texture.height, z: 0 },
-            { x: 0, y: this.texture.height, z: 0 },
-        ]
-    }
-
-    public side: CardSide = CardSide.FRONT;
+    public readonly perspective: CardPerspectiveData = createPerspectiveData(this)
+    public readonly suit: CardSuit;
+    public readonly rank: CardRank;
+    public side: CardSide;
 
     private _sideToTextureMap: Map<CardSide, Texture>;
 
-    constructor(faceTextureSource: Texture | TextureSourceLike) {
+    constructor(rank: CardRank, suit: CardSuit) {
         super({
-            texture: faceTextureSource instanceof Texture ? faceTextureSource : Texture.from(faceTextureSource),
+            texture: mapToCardFaceTexture(rank, suit),
             verticesX: 2,
             verticesY: 2,
         });
+
+        this.rank = rank;
+        this.suit = suit;
+        this.side = CardSide.FRONT;
 
         this._sideToTextureMap = new Map<CardSide, Texture>([
             [CardSide.BACK, Texture.from("assets/textures/cards-backs/default.png")],
@@ -51,6 +48,7 @@ export class PerspectiveCard extends PerspectiveMesh {
             corners[2].x, corners[2].y,
             corners[3].x, corners[3].y
         );
+
         this._updateSide(corners);
     }
 
@@ -86,6 +84,19 @@ export class PerspectiveCard extends PerspectiveMesh {
             (corners[3].x - corners[2].x) * (corners[3].y + corners[2].y) +
             (corners[0].x - corners[3].x) * (corners[0].y + corners[3].y)
         );
+    }
+}
+
+function createPerspectiveData(card: PerspectiveCard): CardPerspectiveData {
+    return {
+        rotation: { x: 0, y: 0, z: 0 },
+        offset: { x: 0, y: 0, z: 0 },
+        corners: [
+            { x: 0, y: 0, z: 0 },
+            { x: card.texture.width, y: 0, z: 0 },
+            { x: card.texture.width, y: card.texture.height, z: 0 },
+            { x: 0, y: card.texture.height, z: 0 },
+        ]
     }
 }
 

@@ -1,6 +1,8 @@
 import { Container, Graphics, Rectangle, Ticker } from "pixi.js";
-import { PerspectiveCard } from "./PerspectiveCard";
+import { PerspectiveCard } from "../card";
 import { PerspectiveCamera } from "../../../../core/utils";
+import { CardSuit } from "../../models";
+
 /**
  * The game world container - renders all of the game world elements that are not part of the UI and overlays
  */
@@ -16,7 +18,7 @@ export class GameWorld extends Container {
         this.addChild(new Graphics().rect(0, 0, this.bounds.width, this.bounds.height).fill("darkgreen"));
 
         for (let i = 0; i < 4; i++) {
-            const card = new PerspectiveCard(`assets/textures/cards-spades/spades_0${i + 2}.png`);
+            const card = new PerspectiveCard(i + 2, CardSuit.DIAMONDS);
             card.perspective.offset.x = (i - 2) * (card.texture.width + 20);
             this.cards.push(this.addChild(card));
         }
