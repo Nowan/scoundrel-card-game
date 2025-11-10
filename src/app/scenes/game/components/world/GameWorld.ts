@@ -34,7 +34,7 @@ export class GameWorld extends Container {
             card.updatePerspective(this.camera);
             card.interactive = true;
             card.on("click", () => card.flip(this.camera));
-        })
+        });
     }
 
     public update(ticker: Ticker): void {

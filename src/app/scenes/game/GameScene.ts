@@ -2,10 +2,12 @@ import { Scene } from "../../core/sceneManagement";
 import { Game } from "./Game";
 import { Assets, Ticker } from "pixi.js";
 import { Viewport, GameWorld } from "./components";
+import { GameModel } from "./models/GameModel";
 
 export class GameScene extends Scene {
     private _viewport: Viewport = this._createViewport();
     private _game: Game | null = null;
+    private _gameModel = new GameModel();
     private _world: GameWorld | null = null;
 
     public async load(): Promise<void> {
