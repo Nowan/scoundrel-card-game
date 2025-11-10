@@ -13,7 +13,7 @@ export class PerspectiveCamera {
         this.fieldOfVision = fieldOfVision ?? this.fieldOfVision;
     }
 
-    transformToViewport(vertices: PointData3D[], offset: PointData3D, rotation: PointData3D, viewportWidth: number = 800, viewportHeight: number = 600): PointData[] {
+    transformToViewport<VERTICES extends PointData3D[] = PointData3D[]>(vertices: VERTICES, offset: PointData3D, rotation: PointData3D, viewportWidth: number = 800, viewportHeight: number = 600): VERTICES {
         const ndcs = this._calculateNormalizedDeviceCoordinates(vertices, offset, rotation);
 
         return ndcs.map(ndc => {
@@ -21,7 +21,7 @@ export class PerspectiveCamera {
             const y = (-ndc.y * 0.5 + 0.5) * viewportHeight;
 
             return { x, y };
-        });
+        }) as VERTICES;
     }
 
     private _calculateNormalizedDeviceCoordinates(vertices: PointData3D[], offset: PointData3D, rotation: PointData3D): PointData[] {
