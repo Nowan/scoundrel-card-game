@@ -1,15 +1,16 @@
 import { Scene } from "../../core/sceneManagement";
-import { Game } from "./Game";
 import { Assets, Ticker } from "pixi.js";
 import { Viewport, GameWorld } from "./components";
 import { GameModel } from "./models/GameModel";
 import { CommandExecutor, startNewGameRoundCommand } from "./commands";
+import { InteractionManager } from "./components/interaction";
 
 export class GameScene extends Scene {
     public model: GameModel = new GameModel();
     public world: GameWorld | null = null;
     public viewport: Viewport = this._createViewport();
     public cmd: CommandExecutor = new CommandExecutor(this);
+    public interaction: InteractionManager = new InteractionManager(this);
 
     public async load(): Promise<void> {
         await Assets.loadBundle("game-scene");
@@ -18,7 +19,7 @@ export class GameScene extends Scene {
     public init(): void {
         this.world = this._createWorld(this.viewport);
 
-        this.cmd.execute(startNewGameRoundCommand);
+        // this.cmd.execute(startNewGameRoundCommand);
     }
 
     public resize(width: number, height: number): void {
@@ -51,14 +52,6 @@ export class GameScene extends Scene {
         viewport.worldHeight = world.bounds.height;
         viewport.fitToWorld();
         return viewport.worldContainer.addChild(world)
-    }
-
-    private _createGame(): Game {
-        const game = new Game();
-
-        // TODO: Assign event listeners
-
-        return game;
     }
 }
 

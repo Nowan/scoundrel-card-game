@@ -4,6 +4,7 @@ import { PerspectiveCamera } from "../../../../core/utils";
 import { animate } from "motion";
 import { CardModel, CardRank, CardSuit } from "../../models";
 import { mapToCardFaceTexture } from "./mapToCardFaceTexture";
+import { mat4, vec3 } from "gl-matrix";
 
 export class PerspectiveCard extends PerspectiveMesh {
     public readonly model: CardModel;
@@ -44,6 +45,26 @@ export class PerspectiveCard extends PerspectiveMesh {
 
     public get suit() {
         return this.model.suit;
+    }
+
+    public get normal3D() {
+        // Local +Z axis = (0, 0, 1)
+        const localNormal = vec3.fromValues(0, 0, 1);
+
+        // Apply card rotation to normal vector
+        const normal = vec3.create();
+        const rx = (this.rotation3D.x * Math.PI) / 180;
+        const ry = (this.rotation3D.y * Math.PI) / 180;
+        const rz = (this.rotation3D.z * Math.PI) / 180;
+
+        // Build rotation matrix
+        const rotMat = mat4.create();
+        mat4.rotateX(rotMat, rotMat, rx);
+        mat4.rotateY(rotMat, rotMat, ry);
+        mat4.rotateZ(rotMat, rotMat, rz);
+        vec3.transformMat4(normal, localNormal, rotMat);
+
+        return vec3.normalize(normal, normal);
     }
 
     public flip(camera: PerspectiveCamera) {

@@ -1,6 +1,7 @@
-import { mat4, vec4 } from "gl-matrix";
+import { mat4, vec3, vec4 } from "gl-matrix";
 import { PointData } from "pixi.js";
 import { PointData3D } from "./PointData3D";
+import { PerspectiveCameraRay } from "./PerspectiveCameraRay";
 
 export class PerspectiveCamera {
     position: PointData3D = { x: 0, y: 0, z: 0 };
@@ -26,6 +27,40 @@ export class PerspectiveCamera {
         }) as VERTICES;
     }
 
+    createRay(viewportX: number, viewportY: number): PerspectiveCameraRay {
+        const ndcX = -((viewportX / this.viewport.width) * 2 - 1);
+        const ndcY = 1 - (viewportY / this.viewport.height) * 2;
+
+        // Clip-space positions for near and far points
+        const nearPoint = vec4.fromValues(ndcX, ndcY, -1, 1);
+        const farPoint = vec4.fromValues(ndcX, ndcY, 1, 1);
+
+        // Inverse of projection * view matrix
+        const viewMatrix = this._calculateViewMatrix();
+        const projectionMatrix = this._calculateProjectionMatrix();
+        const invViewProj = mat4.create();
+        mat4.multiply(invViewProj, projectionMatrix, viewMatrix);
+        mat4.invert(invViewProj, invViewProj);
+
+        // Transform to world space
+        vec4.transformMat4(nearPoint, nearPoint, invViewProj);
+        vec4.transformMat4(farPoint, farPoint, invViewProj);
+
+        // Perspective divide
+        for (const p of [nearPoint, farPoint]) {
+            p[0] /= p[3];
+            p[1] /= p[3];
+            p[2] /= p[3];
+            p[3] = 1;
+        }
+
+        const origin = vec3.fromValues(nearPoint[0], nearPoint[1], nearPoint[2]);
+        const direction = vec3.sub(vec3.create(), vec3.fromValues(farPoint[0], farPoint[1], farPoint[2]), origin);
+        vec3.normalize(direction, direction);
+
+        return new PerspectiveCameraRay(origin, direction);
+    }
+
     private _calculateNormalizedDeviceCoordinates(vertices: PointData3D[], offset: PointData3D, rotation: PointData3D): PointData[] {
         const mvpMatrix = this._calculateModelViewProjectionMatrix(vertices, offset, rotation);
 
@@ -49,7 +84,7 @@ export class PerspectiveCamera {
         return mvpMatrix;
     }
 
-    _calculateModelMatrix(vertices: PointData3D[], offset: PointData3D, rotation: PointData3D): mat4 {
+    private _calculateModelMatrix(vertices: PointData3D[], offset: PointData3D, rotation: PointData3D): mat4 {
         const modelMatrix = mat4.create();
         const rotationPivot = this._calculateCentroid(vertices);
 
@@ -70,7 +105,7 @@ export class PerspectiveCamera {
         return modelMatrix;
     }
 
-    _calculateViewMatrix(): mat4 {
+    private _calculateViewMatrix(): mat4 {
         return mat4.lookAt(
             mat4.create(),
             [this.position.x, this.position.y, this.position.z],
@@ -79,12 +114,12 @@ export class PerspectiveCamera {
         );
     }
 
-    _calculateProjectionMatrix(): mat4 {
+    private _calculateProjectionMatrix(): mat4 {
         const aspectRatio = this.viewport.width / this.viewport.height;
         return mat4.perspective(mat4.create(), (this.fieldOfView * Math.PI) / 180, aspectRatio, 0.1, 2000);
     }
 
-    _calculateCentroid(vertices: PointData3D[]) {
+    private _calculateCentroid(vertices: PointData3D[]) {
         return {
             x: (Math.max(...vertices.map(v => v.x)) + Math.min(...vertices.map(v => v.x))) * 0.5,
             y: (Math.max(...vertices.map(v => v.y)) + Math.min(...vertices.map(v => v.y))) * 0.5,
