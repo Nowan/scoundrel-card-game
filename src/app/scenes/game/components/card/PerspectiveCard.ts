@@ -2,12 +2,11 @@ import { Graphics, PerspectiveMesh, Point, Texture, TextureSourceLike } from "pi
 import { PointData3D } from "../../../../core/utils/perspective/PointData3D";
 import { PerspectiveCamera } from "../../../../core/utils";
 import { animate } from "motion";
-import { CardRank, CardSuit } from "../../models";
+import { CardModel, CardRank, CardSuit } from "../../models";
 import { mapToCardFaceTexture } from "./mapToCardFaceTexture";
 
 export class PerspectiveCard extends PerspectiveMesh {
-    public readonly suit: CardSuit;
-    public readonly rank: CardRank;
+    public readonly model: CardModel;
 
     public side: CardSide;
     public position3D: PointData3D = { x: 0, y: 0, z: 0 };
@@ -21,15 +20,14 @@ export class PerspectiveCard extends PerspectiveMesh {
 
     private _sideToTextureMap: Map<CardSide, Texture>;
 
-    constructor(rank: CardRank, suit: CardSuit) {
+    constructor(model: CardModel) {
         super({
-            texture: mapToCardFaceTexture(rank, suit),
+            texture: mapToCardFaceTexture(model.rank, model.suit),
             verticesX: 2,
             verticesY: 2,
         });
 
-        this.rank = rank;
-        this.suit = suit;
+        this.model = model;
         this.side = CardSide.FRONT;
 
         this._sideToTextureMap = new Map<CardSide, Texture>([
@@ -38,6 +36,14 @@ export class PerspectiveCard extends PerspectiveMesh {
         ]);
 
         this.addChild(new Graphics().circle(0, 0, 5).fill(0xffffff));
+    }
+
+    public get rank() {
+        return this.model.rank;
+    }
+
+    public get suit() {
+        return this.model.suit;
     }
 
     public flip(camera: PerspectiveCamera) {

@@ -1,1 +1,2 @@
-export * from "./spawnCardsToDeckCommand";
+export * from "./dealDeckCardsCommand";
+export * from "./dealRoomCardsCommand";

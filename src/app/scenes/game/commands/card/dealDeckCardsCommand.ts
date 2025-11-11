@@ -1,23 +1,22 @@
 import { animate } from "motion";
 import { FunctionalCommand } from "../Command";
 import type { CardModel } from "../../models/CardModel";
-import { CardSide } from "../../components/card";
 
-export const spawnCardsToDeckCommand: FunctionalCommand = (
-    async function spawnCardsToDeckCommand(...cardsModels: CardModel[]) {
+export const dealDeckCardsCommand: FunctionalCommand = (
+    async function dealDeckCardsCommand(...cardsModels: CardModel[]) {
         await Promise.all(cardsModels.map((async (cardModel, i) => {
             await new Promise((resolve) => setTimeout(resolve, 30 * i))
-            await spawnCardToDeckCommand.call(this, cardModel);
+            await dealDeckCardCommand.call(this, cardModel);
         })));
     }
 );
 
-const spawnCardToDeckCommand: FunctionalCommand = (
-    async function spawnCardToDeckCommand(cardModel: CardModel) {
+const dealDeckCardCommand: FunctionalCommand = (
+    async function dealDeckCardCommand(cardModel: CardModel) {
         const world = this.world!;
         const spawnPosition = world.layout.slots.cardSpawn.position3D;
         const deckPosition = world.layout.slots.deck.position3D;
-        const card = world.spawner.spawnCard(cardModel.rank, cardModel.suit, spawnPosition);
+        const card = world.spawner.spawnCard(cardModel, spawnPosition);
 
         card.rotation3D.y = 180;
 

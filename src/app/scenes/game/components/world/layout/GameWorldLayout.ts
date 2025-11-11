@@ -1,5 +1,6 @@
 import { Container, Rectangle } from "pixi.js";
-import { PointData3D } from "../../../../../core/utils";
+import { FixedLengthArray, PointData3D } from "../../../../../core/utils";
+import type { GameModel } from "../../../models";
 
 // same as texture size
 export const CARD_WIDTH = 352;
@@ -20,7 +21,7 @@ export class GameWorldLayout extends Container {
         }
     }
 
-    private _createRoomCardsSlots(numberOfRoomCards: number) {
+    private _createRoomCardsSlots(numberOfRoomCards: number): GameWorldLayoutSlots["roomCards"] {
         return Array(numberOfRoomCards)
             .fill(null)
             .map((_, i) => (
@@ -29,7 +30,7 @@ export class GameWorldLayout extends Container {
                     y: 0,
                     z: 0
                 })
-            ));
+            )) as GameWorldLayoutSlots["roomCards"];
     }
 
     private _createLayoutSlot(position3D: PointData3D) {
@@ -41,7 +42,7 @@ export class GameWorldLayout extends Container {
 
 export type GameWorldLayoutSlots = {
     deck: GameWorldLayoutSlot,
-    roomCards: GameWorldLayoutSlot[],
+    roomCards: FixedLengthArray<GameWorldLayoutSlot, typeof GameModel["CARDS_DEALT_PER_ROOM"]>,
     cardSpawn: GameWorldLayoutSlot
 }
 

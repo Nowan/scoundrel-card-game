@@ -1,0 +1,1 @@
+export type PartiallyOptional<T, K extends keyof T> = T & Partial<Pick<T, K>>;

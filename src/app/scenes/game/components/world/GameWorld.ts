@@ -5,6 +5,7 @@ import { GameWorldLayout } from "./layout";
 import { GameWorldSpawner } from "./spawner";
 import { GameModel } from "../../models/GameModel";
 import { CardsDeck } from "../deck";
+import { PerspectiveCard } from "../card";
 
 /**
  * The game world container - renders all of the game world elements that are not part of the UI and overlays
@@ -21,21 +22,19 @@ export class GameWorld extends Container {
 
     layout: GameWorldLayout = new GameWorldLayout(GameModel.CARDS_DEALT_PER_ROOM);
     spawner: GameWorldSpawner = new GameWorldSpawner(this);
-    deck: CardsDeck = this.addChild(new CardsDeck());
+    cards: PerspectiveCard[] = [];
 
     constructor() {
         super();
 
         this.addChild(new Graphics().rect(0, 0, this.bounds.width, this.bounds.height).fill("darkgreen"));
 
-        this.deck = this.addChild(new CardsDeck());
+        // for (let cardSlot of this.layout.slots.roomCards) {
+        //     const card = this.spawner.spawnCard(2, CardSuit.DIAMONDS, cardSlot.position3D);
 
-        for (let cardSlot of this.layout.slots.roomCards) {
-            const card = this.spawner.spawnCard(2, CardSuit.DIAMONDS, cardSlot.position3D);
-
-            card.interactive = true;
-            card.on("click", () => card.animateFlip(this.camera));
-        }
+        //     card.interactive = true;
+        //     card.on("click", () => card.animateFlip(this.camera));
+        // }
 
         (window as any).camera = this.camera;
     }
