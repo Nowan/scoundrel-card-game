@@ -1,7 +1,10 @@
 import { Container, Graphics, Rectangle, Ticker } from "pixi.js";
-import { PerspectiveCard } from "../card";
 import { PerspectiveCamera } from "../../../../core/utils";
 import { CardSuit } from "../../models";
+import { GameWorldLayout } from "./layout";
+import { GameWorldSpawner } from "./spawner";
+import { GameModel } from "../../models/GameModel";
+import { CardsDeck } from "../deck";
 
 /**
  * The game world container - renders all of the game world elements that are not part of the UI and overlays
@@ -9,38 +12,38 @@ import { CardSuit } from "../../models";
 export class GameWorld extends Container {
     readonly bounds = new Rectangle(0, 0, 800, 600);
 
-    cards: PerspectiveCard[] = [];
     camera: PerspectiveCamera = new PerspectiveCamera({
         position: { x: 0, y: 1800, z: 1000 },
-        lookAt: { x: 0, y: 0, z: 0 },
+        lookAt: { x: 0, y: 200, z: 0 },
         fieldOfView: 40,
         viewport: { width: this.bounds.width, height: this.bounds.height }
     });
+
+    layout: GameWorldLayout = new GameWorldLayout(GameModel.CARDS_DEALT_PER_ROOM);
+    spawner: GameWorldSpawner = new GameWorldSpawner(this);
+    deck: CardsDeck = this.addChild(new CardsDeck());
 
     constructor() {
         super();
 
         this.addChild(new Graphics().rect(0, 0, this.bounds.width, this.bounds.height).fill("darkgreen"));
-        const spacing = 20;
-        for (let i = 0; i < 4; i++) {
-            const card = new PerspectiveCard(i + 2, CardSuit.DIAMONDS);
-            card.perspective.offset.x = (i - 2) * (card.texture.width + spacing) + spacing * 0.5;
-            this.cards.push(this.addChild(card));
+
+        this.deck = this.addChild(new CardsDeck());
+
+        for (let cardSlot of this.layout.slots.roomCards) {
+            const card = this.spawner.spawnCard(2, CardSuit.DIAMONDS, cardSlot.position3D);
+
+            card.interactive = true;
+            card.on("click", () => card.animateFlip(this.camera));
         }
 
         (window as any).camera = this.camera;
-
-        this.cards.forEach((card, i) => {
-            card.updatePerspective(this.camera);
-            card.interactive = true;
-            card.on("click", () => card.flip(this.camera));
-        });
     }
 
     public update(ticker: Ticker): void {
-        this.cards.forEach((card, i) => {
-            card.updatePerspective(this.camera);
-        })
+        // this.cards.forEach((card, i) => {
+        //     card.updatePerspective(this.camera);
+        // })
     }
 }
 

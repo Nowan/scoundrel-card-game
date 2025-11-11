@@ -1,9 +1,11 @@
 import { GameRoundModel } from "./GameRoundModel";
 
 export class GameModel {
-    public round: GameRoundModel | null = null;
+    static CARDS_DEALT_PER_ROOM = 4;
 
-    constructor() {
-        this.round = new GameRoundModel(`${Date.now()}`);
+    public currentRound: GameRoundModel | null = null;
+
+    public initGameRound(): GameRoundModel {
+        return this.currentRound = new GameRoundModel(`${Date.now()}`);
     }
 }

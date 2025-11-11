@@ -6,10 +6,18 @@ import { CardRank, CardSuit } from "../../models";
 import { mapToCardFaceTexture } from "./mapToCardFaceTexture";
 
 export class PerspectiveCard extends PerspectiveMesh {
-    public readonly perspective: CardPerspectiveData = createPerspectiveData(this)
     public readonly suit: CardSuit;
     public readonly rank: CardRank;
+
     public side: CardSide;
+    public position3D: PointData3D = { x: 0, y: 0, z: 0 };
+    public rotation3D: PointData3D = { x: 0, y: 0, z: 0 };
+    public corners3D: [PointData3D, PointData3D, PointData3D, PointData3D] = [
+        { x: 0, y: 0, z: 0 },
+        { x: this.texture.width, y: 0, z: 0 },
+        { x: this.texture.width, y: this.texture.height, z: 0 },
+        { x: 0, y: this.texture.height, z: 0 },
+    ]
 
     private _sideToTextureMap: Map<CardSide, Texture>;
 
@@ -32,15 +40,27 @@ export class PerspectiveCard extends PerspectiveMesh {
         this.addChild(new Graphics().circle(0, 0, 5).fill(0xffffff));
     }
 
-    public async flip(camera: PerspectiveCamera) {
+    public flip(camera: PerspectiveCamera) {
         switch (this.side) {
-            case CardSide.FRONT: return await this._flipToBackFace(camera);
-            case CardSide.BACK: return await this._flipToFrontFace(camera);
+            case CardSide.FRONT:
+                this.rotation3D.y = 180;
+                this.updatePerspective(camera);
+                break;
+            case CardSide.BACK:
+                this.rotation3D.y = 0;
+                this.updatePerspective(camera);
+        }
+    }
+
+    public async animateFlip(camera: PerspectiveCamera) {
+        switch (this.side) {
+            case CardSide.FRONT: return await this._animateFlipToBackFace(camera);
+            case CardSide.BACK: return await this._animateFlipToFrontFace(camera);
         }
     }
 
     public updatePerspective(camera: PerspectiveCamera) {
-        const corners = camera.transform(this.perspective.corners, this.perspective.offset, this.perspective.rotation);
+        const corners = camera.transform(this.corners3D, this.position3D, this.rotation3D);
 
         this.setCorners(
             corners[0].x, corners[0].y,
@@ -52,15 +72,15 @@ export class PerspectiveCard extends PerspectiveMesh {
         this._updateSide(corners);
     }
 
-    private async _flipToFrontFace(camera: PerspectiveCamera) {
-        await animate(this.perspective.rotation, { y: 0 }, {
+    private async _animateFlipToFrontFace(camera: PerspectiveCamera) {
+        await animate(this.rotation3D, { y: 0 }, {
             duration: 1,
             onUpdate: () => this.updatePerspective(camera)
         });
     }
 
-    private async _flipToBackFace(camera: PerspectiveCamera) {
-        await animate(this.perspective.rotation, { y: 180 }, {
+    private async _animateFlipToBackFace(camera: PerspectiveCamera) {
+        await animate(this.rotation3D, { y: 180 }, {
             duration: 1,
             onUpdate: () => this.updatePerspective(camera)
         });
@@ -71,6 +91,7 @@ export class PerspectiveCard extends PerspectiveMesh {
         const nextSide = area < 0 ? CardSide.FRONT : CardSide.BACK;
 
         if (nextSide !== this.side) {
+            // console.log(this.side, nextSide, this);
             this.texture = this._sideToTextureMap.get(nextSide)!;
             this.side = nextSide;
         }
@@ -84,19 +105,6 @@ export class PerspectiveCard extends PerspectiveMesh {
             (corners[3].x - corners[2].x) * (corners[3].y + corners[2].y) +
             (corners[0].x - corners[3].x) * (corners[0].y + corners[3].y)
         );
-    }
-}
-
-function createPerspectiveData(card: PerspectiveCard): CardPerspectiveData {
-    return {
-        rotation: { x: 0, y: 0, z: 0 },
-        offset: { x: 0, y: 0, z: 0 },
-        corners: [
-            { x: 0, y: 0, z: 0 },
-            { x: card.texture.width, y: 0, z: 0 },
-            { x: card.texture.width, y: card.texture.height, z: 0 },
-            { x: 0, y: card.texture.height, z: 0 },
-        ]
     }
 }
 

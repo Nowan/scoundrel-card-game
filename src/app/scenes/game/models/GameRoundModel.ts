@@ -5,7 +5,7 @@ import seedrandom, { PRNG } from "seedrandom";
 
 export class GameRoundModel {
     public readonly seed: string;
-    public readonly deck: CardModel[];
+    public readonly cardsDeck: CardModel[];
 
     private readonly _rng: PRNG;
 
@@ -13,6 +13,6 @@ export class GameRoundModel {
         this._rng = seedrandom(seed);
 
         this.seed = seed;
-        this.deck = shuffle(composeCardsDeck(), this._rng);
+        this.cardsDeck = shuffle(composeCardsDeck(), this._rng);
     }
 }

@@ -3,35 +3,35 @@ import { Game } from "./Game";
 import { Assets, Ticker } from "pixi.js";
 import { Viewport, GameWorld } from "./components";
 import { GameModel } from "./models/GameModel";
+import { CommandExecutor, startNewGameRoundCommand } from "./commands";
 
 export class GameScene extends Scene {
-    private _viewport: Viewport = this._createViewport();
-    private _game: Game | null = null;
-    private _gameModel = new GameModel();
-    private _world: GameWorld | null = null;
+    public model: GameModel = new GameModel();
+    public world: GameWorld | null = null;
+    public viewport: Viewport = this._createViewport();
+    public cmd: CommandExecutor = new CommandExecutor(this);
 
     public async load(): Promise<void> {
         await Assets.loadBundle("game-scene");
     }
 
     public init(): void {
-        this._game = this._createGame();
-        this._world = this._createWorld(this._viewport);
+        this.world = this._createWorld(this.viewport);
 
-        this._game.start();
+        this.cmd.execute(startNewGameRoundCommand);
     }
 
     public resize(width: number, height: number): void {
-        this._viewport.resize(width, height);
-        this._viewport.fitToWorld();
+        this.viewport.resize(width, height);
+        this.viewport.fitToWorld();
     }
 
     public update(ticker: Ticker): void {
-        this._world?.update(ticker);
+        this.world?.update(ticker);
     }
 
     public destroy() {
-        this._game?.stop();
+        // this.game?.stop();
     }
 
     private _createViewport(): Viewport {
