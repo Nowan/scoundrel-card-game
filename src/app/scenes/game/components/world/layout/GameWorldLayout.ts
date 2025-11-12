@@ -15,9 +15,10 @@ export class GameWorldLayout extends Container {
         super();
 
         this.slots = {
-            deck: this._createLayoutSlot({ x: -CARD_WIDTH * 0.5, y: -CARD_HEIGHT * 1.2, z: 0 }),
+            dungeonCards: this._createLayoutSlot({ x: -CARD_WIDTH * 1.5, y: -CARD_HEIGHT * 1.2, z: 0 }),
             roomCards: this._createRoomCardsSlots(numberOfRoomCards),
-            cardSpawn: this._createLayoutSlot({ x: -CARD_WIDTH * 0.5, y: -CARD_HEIGHT * 1.2, z: 1000 })
+            discardCards: this._createLayoutSlot({ x: CARD_WIDTH * 0.5, y: -CARD_HEIGHT * 1.2, z: 0 }),
+            cardSpawn: this._createLayoutSlot({ x: -CARD_WIDTH * 1.5, y: -CARD_HEIGHT * 1.2, z: 1000 })
         }
     }
 
@@ -41,8 +42,9 @@ export class GameWorldLayout extends Container {
 }
 
 export type GameWorldLayoutSlots = {
-    deck: GameWorldLayoutSlot,
+    dungeonCards: GameWorldLayoutSlot,
     roomCards: FixedLengthArray<GameWorldLayoutSlot, typeof GameModel["CARDS_DEALT_PER_ROOM"]>,
+    discardCards: GameWorldLayoutSlot,
     cardSpawn: GameWorldLayoutSlot
 }
 

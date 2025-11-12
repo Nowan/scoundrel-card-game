@@ -1,20 +1,17 @@
-import { cancelled } from "redux-saga/effects";
+import { call, cancelled } from "redux-saga/effects";
 import { FunctionalCommand } from "../Command";
+import { discardRoomCardsCommand } from "../card";
 
 export const skipRoomCommand: FunctionalCommand = (
     function* skipRoomCommand() {
         try {
-            console.log("Skip room started", Date.now());
-            yield new Promise(res => setTimeout(res, 5000))
-            console.log("Skip room completed", Date.now())
-            return "skip"
-        }
-        catch (err) {
-            console.log("Skip room cleanup error", Date.now(), err)
+            const roomCards = this.model.round?.roomCards ?? [];
+
+            yield call(discardRoomCardsCommand.bind(this, ...roomCards))
         }
         finally {
             if (yield cancelled()) {
-                console.log("Skip room cleanup triggered", Date.now());
+                // Cleanup logic
             }
         }
     }

@@ -19,7 +19,7 @@ const dealDungeonCardCommand: FunctionalCommand = (
     function* dealDungeonCardCommand(cardModel: CardModel) {
         const world = this.world!;
         const spawnPosition = world.layout.slots.cardSpawn.position3D;
-        const deckPosition = world.layout.slots.deck.position3D;
+        const deckPosition = world.layout.slots.dungeonCards.position3D;
         const card = world.spawner.spawnCard(cardModel, spawnPosition);
 
         card.rotation3D.y = 180;
