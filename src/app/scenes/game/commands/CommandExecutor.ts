@@ -1,16 +1,19 @@
 import { CommandContext } from "./CommandContext";
-import { Command, FunctionalCommand } from "./Command";
+import { Command as ClassCommand, FunctionalCommand } from "./Command";
 import type { GameScene } from "../GameScene";
+import { runSaga } from "redux-saga";
 
 export class CommandExecutor {
     private _context: CommandContext;
 
     constructor(scene: GameScene) {
         this._context = new CommandContext(this, scene);
+
+        this.execute = this.execute.bind(this);
     }
 
-    async execute<RETURN_TYPE = void>(command: Command | FunctionalCommand<RETURN_TYPE>, ...args: any[]): Promise<RETURN_TYPE> {
-        if (command instanceof Command) {
+    execute<RETURN_TYPE = void>(command: ClassCommand | FunctionalCommand<RETURN_TYPE>, ...args: any[]): Promise<RETURN_TYPE> {
+        if (command instanceof ClassCommand) {
             return this._executeClassCommand(command, ...args);
         }
         else {
@@ -18,13 +21,21 @@ export class CommandExecutor {
         }
     }
 
-    private async _executeClassCommand<RETURN_TYPE = void>(command: Command, ...args: any[]): Promise<RETURN_TYPE> {
-        return command.execute(...args);
+    async _executeClassCommand<RETURN_TYPE = void>(command: ClassCommand, ...args: any[]): Promise<RETURN_TYPE> {
+        return runSaga(
+            { context: { commandContext: this._context } },
+            command.execute,
+            ...args
+        ).toPromise();
     }
 
-    private async _executeFunctionalCommand<RETURN_TYPE = void>(command: FunctionalCommand<RETURN_TYPE>, ...args: any[]): Promise<RETURN_TYPE> {
+    async _executeFunctionalCommand<RETURN_TYPE = void>(command: FunctionalCommand<RETURN_TYPE>, ...args: any[]): Promise<RETURN_TYPE> {
         const context = Object.assign(new CommandContext(this, this._context.scene), { context: this._context });
 
-        return command.call(context, ...args);
+        return runSaga(
+            { context: { commandContext: this._context } },
+            command.bind(context),
+            ...args
+        ).toPromise();
     }
 }

@@ -19,7 +19,7 @@ export class GameScene extends Scene {
     public init(): void {
         this.world = this._createWorld(this.viewport);
 
-        // this.cmd.execute(startNewGameRoundCommand);
+        this.cmd.execute(startNewGameRoundCommand);
     }
 
     public resize(width: number, height: number): void {

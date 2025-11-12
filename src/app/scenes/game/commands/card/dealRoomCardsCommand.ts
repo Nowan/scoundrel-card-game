@@ -2,26 +2,31 @@ import { animate } from "motion";
 import { CardModel } from "../../models";
 import { FunctionalCommand } from "../Command";
 import type { PerspectiveCard } from "../../components/card";
+import { all, delay, call } from "redux-saga/effects";
+import { queue } from "../../../../core/utils";
 
 export const dealRoomCardsCommand: FunctionalCommand = (
-    async function dealRoomCardsCommand(...cardsModels: CardModel[]) {
+    function* dealRoomCardsCommand(...cardsModels: CardModel[]) {
         const world = this.world!;
         const cards = cardsModels
             .map(cardModel => world.cards.find(card => card.model === cardModel))
             .filter(card => !!card);
 
-        await Promise.all(cards.map(async (card, i) => {
-            await new Promise((resolve) => setTimeout(resolve, 200 * i))
-            await dealRoomCardCommand.call(this, card);
-        }));
-        await Promise.all(cards.map((card) => card.animateFlip(world.camera)));
+        yield all(cards.map((card, i) => (
+            queue([
+                delay(i * 200),
+                call(dealRoomCardCommand.bind(this, card))
+            ])
+        )));
+
+        yield all(cards.map(card => card.animateFlip(world.camera)));
     }
 );
 
 const dealRoomCardCommand: FunctionalCommand = (
-    async function dealRoomCardCommand(card: PerspectiveCard) {
+    function* dealRoomCardCommand(card: PerspectiveCard) {
         const world = this.world!;
-        const roundModel = this.model.currentRound!;
+        const roundModel = this.model.round!;
         const freeRoomCardSpace = roundModel.pickFreeRoomCardSpace();
 
         if (card && freeRoomCardSpace !== null && roundModel.deckCards.includes(card.model)) {
@@ -30,7 +35,7 @@ const dealRoomCardCommand: FunctionalCommand = (
             roundModel.deckCards.splice(roundModel.deckCards.indexOf(card.model), 1);
             roundModel.roomCards[freeRoomCardSpace] = card.model;
 
-            await animate(card.position3D, freeRoomCardSpaceSlot.position3D, {
+            yield animate(card.position3D, freeRoomCardSpaceSlot.position3D, {
                 duration: 1,
                 onUpdate: () => card.updatePerspective(world.camera)
             });

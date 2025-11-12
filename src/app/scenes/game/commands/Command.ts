@@ -11,9 +11,9 @@ export abstract class Command {
         return this.context.cmd;
     }
 
-    abstract execute<RETURN_TYPE = void>(...args: any[]): Promise<RETURN_TYPE>;
+    abstract execute<RETURN_TYPE = void>(...args: any[]): Generator<any, RETURN_TYPE, any>
 }
 
 export type FunctionalCommandThis = CommandContext & { context: CommandContext };
 
-export type FunctionalCommand<RETURN_TYPE = void> = (this: FunctionalCommandThis, ...args: any[]) => Promise<RETURN_TYPE>;
+export type FunctionalCommand<RETURN_TYPE = any> = (this: FunctionalCommandThis, ...args: any[]) => Generator<any, RETURN_TYPE, any>
