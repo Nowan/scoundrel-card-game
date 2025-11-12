@@ -29,10 +29,10 @@ const dealRoomCardCommand: FunctionalCommand = (
         const roundModel = this.model.round!;
         const freeRoomCardSpace = roundModel.pickFreeRoomCardSpace();
 
-        if (card && freeRoomCardSpace !== null && roundModel.deckCards.includes(card.model)) {
+        if (card && freeRoomCardSpace !== null && roundModel.dungeonCards.includes(card.model)) {
             const freeRoomCardSpaceSlot = world.layout.slots.roomCards[freeRoomCardSpace];
 
-            roundModel.deckCards.splice(roundModel.deckCards.indexOf(card.model), 1);
+            roundModel.dungeonCards.splice(roundModel.dungeonCards.indexOf(card.model), 1);
             roundModel.roomCards[freeRoomCardSpace] = card.model;
 
             yield animate(card.position3D, freeRoomCardSpaceSlot.position3D, {

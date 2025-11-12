@@ -6,7 +6,7 @@ import { GameModel } from "./GameModel";
 
 export class GameRoundModel {
     public readonly seed: string;
-    public readonly deckCards: CardModel[];
+    public readonly dungeonCards: CardModel[];
     public readonly roomCards: FixedLengthArray<CardModel | null, typeof GameModel["CARDS_DEALT_PER_ROOM"]>;
 
     private readonly _rng: PRNG;
@@ -15,12 +15,12 @@ export class GameRoundModel {
         this._rng = seedrandom(seed);
 
         this.seed = seed;
-        this.deckCards = shuffle(composeCardsDeck(), this._rng);
+        this.dungeonCards = shuffle(composeCardsDeck(), this._rng);
         this.roomCards = Array(GameModel.CARDS_DEALT_PER_ROOM).fill(null) as GameRoundModel["roomCards"];
     }
 
     pickTopCardsFromDeck(numberOfCards: number): CardModel[] {
-        return this.deckCards.slice(-numberOfCards).reverse();
+        return this.dungeonCards.slice(-numberOfCards).reverse();
     }
 
     pickFreeRoomCardSpace(): number | null {
@@ -29,5 +29,21 @@ export class GameRoundModel {
         }
 
         return null;
+    }
+
+    getFreeRoomCardSpaceIndexes(): number[] {
+        const freeSpaceIndexes = [];
+
+        for (let i = 0; i < GameModel.CARDS_DEALT_PER_ROOM; i++) {
+            if (this.roomCards[i] === null) {
+                freeSpaceIndexes.push(i);
+            }
+        }
+
+        return freeSpaceIndexes;
+    }
+
+    getFreeRoomSpacesCount() {
+        return this.getFreeRoomCardSpaceIndexes().length;
     }
 }

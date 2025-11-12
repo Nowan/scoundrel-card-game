@@ -1,2 +1,2 @@
-export * from "./dealDeckCardsCommand";
+export * from "./dealDungeonCardsCommand";
 export * from "./dealRoomCardsCommand";

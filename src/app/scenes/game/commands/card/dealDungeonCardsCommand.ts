@@ -4,19 +4,19 @@ import type { CardModel } from "../../models/CardModel";
 import { all, call, delay } from "redux-saga/effects";
 import { queue } from "../../../../core/utils";
 
-export const dealDeckCardsCommand: FunctionalCommand = (
-    function* dealDeckCardsCommand(...cardsModels: CardModel[]) {
+export const dealDungeonCardsCommand: FunctionalCommand = (
+    function* dealDungeonCardsCommand(...cardsModels: CardModel[]) {
         yield all(cardsModels.map((cardModel, i) => (
             queue([
                 delay(i * 30),
-                call(dealDeckCardCommand.bind(this, cardModel))
+                call(dealDungeonCardCommand.bind(this, cardModel))
             ])
         )))
     }
 );
 
-const dealDeckCardCommand: FunctionalCommand = (
-    function* dealDeckCardCommand(cardModel: CardModel) {
+const dealDungeonCardCommand: FunctionalCommand = (
+    function* dealDungeonCardCommand(cardModel: CardModel) {
         const world = this.world!;
         const spawnPosition = world.layout.slots.cardSpawn.position3D;
         const deckPosition = world.layout.slots.deck.position3D;
