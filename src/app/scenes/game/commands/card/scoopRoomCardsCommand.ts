@@ -6,6 +6,7 @@ import { PerspectiveCard } from "../../components/card";
 import { FederatedPointerEvent } from "pixi.js";
 import { Spring } from "../../../../core/utils";
 import { call, cancelled, fork, cancel } from "redux-saga/effects";
+import { animate } from "motion";
 
 export const scoopRoomCardsCommand: FunctionalCommand = (
     function* scoopRoomCardsCommand(...roomCardsModels: FixedLengthArray<CardModel, typeof GameModel["CARDS_DEALT_PER_ROOM"]>) {
@@ -67,6 +68,10 @@ function* onPointerDownWorker(event: FederatedPointerEvent, roomCardsModels: Car
             springs.set(followerCards[i], spring);
         }
 
+        for (let roomCard of roomCards) {
+            animate(roomCard.rotation3D, { x: 0, y: 180, z: 0 }, { duration: 0.4, onUpdate: () => roomCard.updatePerspective(world.camera) });
+        }
+
         return {
             dragStartIntersectionPoint: vec3.copy(vec3.create(), intersection!.point),
             originalCardsPositions: new Map<PerspectiveCard, PointData3D>(roomCards.map((roomCard, i) => ([roomCard, { ...world.layout.slots.roomCards[i].position3D }]))),
@@ -109,11 +114,13 @@ function* onPointerUpWorker(event: FederatedPointerEvent, cardDragContext: CardD
     const commandContext = yield* getCommandContext();
     const { world } = commandContext as NonNullableFields<CommandContext>;
     const { draggedCard, springs, originalCardsPositions } = cardDragContext;
+    const roomCards = [...originalCardsPositions.keys()];
 
     draggedCard.zIndex = 0;
 
-    yield Promise.all([...originalCardsPositions.entries()]
-        .map(([card, originalCardPosition]) => new Promise<void>(resolve => {
+    yield Promise.all([
+        ...roomCards.map((card) => new Promise<void>(resolve => {
+            const originalCardPosition = originalCardsPositions.get(card);
             const cardSpring = springs.get(card) ?? createCardSpring(draggedCard, world.camera);
             cardSpring.transitionTo({ ...originalCardPosition });
             cardSpring.onRest(() => {
@@ -121,7 +128,9 @@ function* onPointerUpWorker(event: FederatedPointerEvent, cardDragContext: CardD
                 springs.delete(card);
                 resolve();
             });
-        })));
+        })),
+        ...roomCards.map((card) => animate(card.rotation3D, { x: 0, y: 0, z: 0 }, { duration: 0.2, onUpdate: () => card.updatePerspective(world.camera) }))
+    ]);
 }
 
 function createCardSpring(followerCard: PerspectiveCard, camera: PerspectiveCamera): SpringType {
