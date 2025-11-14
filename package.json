@@ -69,7 +69,7 @@
         "webpack-dev-server": "^4.11.1",
         "webpack-free-tex-packer": "^0.3.4",
         "webpack-manifest-plugin": "^5.0.0",
-        "webpack-merge": "^5.8.0"
+        "webpack-merge": "^6.0.1"
     },
     "author": "Mykyta Dniprovskyi"
 }
