@@ -118,7 +118,6 @@ export class PerspectiveCard extends PerspectiveMesh {
         const nextSide = area < 0 ? CardSide.FRONT : CardSide.BACK;
 
         if (nextSide !== this.side) {
-            // console.log(this.side, nextSide, this);
             this.texture = this._sideToTextureMap.get(nextSide)!;
             this.side = nextSide;
         }

@@ -34,15 +34,15 @@ export class GameWorld extends Container {
         super();
 
         this.addChild(new Graphics().rect(0, 0, this.bounds.width, this.bounds.height).fill("darkgreen"));
-
-        for (let cardSlot of this.layout.slots.roomCards) {
-            const card = this.spawner.spawnCard(new CardModel(2, CardSuit.DIAMONDS), cardSlot.position3D);
-
-            card.interactive = true;
-            card.eventMode = "static";
-            card.cursor = "pointer";
-            card.on("pointerdown", (e) => this._onPointerDown(e, card));
-        }
+        // let i = 2;
+        // for (let cardSlot of this.layout.slots.roomCards) {
+        //     const card = this.spawner.spawnCard(new CardModel(i, CardSuit.DIAMONDS), cardSlot.position3D);
+        //     i++
+        //     card.interactive = true;
+        //     card.eventMode = "static";
+        //     card.cursor = "pointer";
+        //     // card.on("pointerdown", (e) => this._onPointerDown(e, card));
+        // }
 
         (window as any).camera = this.camera;
 
@@ -66,7 +66,7 @@ export class GameWorld extends Container {
         this._draggedCard = card;
         this._dragPlaneNormal = card.normal3D;
         this._dragStartRay = ray;
-        vec3.copy(this._dragStartOffset, intersection);
+        vec3.copy(this._dragStartOffset, intersection.point);
 
         // Capture global pointer events (works outside card bounds)
         this.on("pointermove", this._onPointerMove, this);
@@ -86,7 +86,7 @@ export class GameWorld extends Container {
         if (!intersection) return;
 
         // Compute world-space delta
-        const delta = vec3.sub(vec3.create(), intersection, this._dragStartOffset);
+        const delta = vec3.sub(vec3.create(), intersection.point, this._dragStartOffset);
 
         // Move card in world-space
         this._draggedCard.position3D.x += delta[0];
@@ -95,7 +95,7 @@ export class GameWorld extends Container {
         this._draggedCard.updatePerspective(this.camera);
 
         // Update offset reference so movement is relative
-        vec3.copy(this._dragStartOffset, intersection);
+        vec3.copy(this._dragStartOffset, intersection.point);
     }
 
     private _onPointerUp() {

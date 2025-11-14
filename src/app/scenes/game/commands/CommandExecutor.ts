@@ -2,6 +2,7 @@ import { CommandContext } from "./CommandContext";
 import { Command as ClassCommand, FunctionalCommand } from "./Command";
 import type { GameScene } from "../GameScene";
 import { runSaga } from "redux-saga";
+import { getContext } from "redux-saga/effects";
 
 export class CommandExecutor {
     private _context: CommandContext;
@@ -23,7 +24,7 @@ export class CommandExecutor {
 
     async _executeClassCommand<RETURN_TYPE = void>(command: ClassCommand, ...args: any[]): Promise<RETURN_TYPE> {
         return runSaga(
-            { context: { commandContext: this._context } },
+            { context: { command: this._context } },
             command.execute,
             ...args
         ).toPromise();
@@ -33,9 +34,17 @@ export class CommandExecutor {
         const context = Object.assign(new CommandContext(this, this._context.scene), { context: this._context });
 
         return runSaga(
-            { context: { commandContext: this._context } },
+            { context: { command: this._context } },
             command.bind(context),
             ...args
         ).toPromise();
     }
+}
+
+/**
+ * @example
+ * const context = yield* getCommandContext();
+ */
+export function* getCommandContext(): Generator<ReturnType<typeof getContext>, CommandContext, CommandContext> {
+    return yield getContext("command");
 }

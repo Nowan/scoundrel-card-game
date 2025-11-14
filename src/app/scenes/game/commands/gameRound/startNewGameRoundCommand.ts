@@ -3,7 +3,7 @@ import { GameModel } from "../../models";
 import { FunctionalCommand } from "../Command";
 import { dealDungeonCardsCommand, dealRoomCardsCommand } from "../card";
 import { faceRoomCommand } from "./faceRoomCommand";
-import { skipRoomCommand } from "./skipRoomCommand";
+import { avoidRoomCommand } from "./avoidRoomCommand";
 
 export const startNewGameRoundCommand: FunctionalCommand = (
     function* startNewGameRoundCommand() {
@@ -18,7 +18,7 @@ export const startNewGameRoundCommand: FunctionalCommand = (
 
             const { faceRoomCommandResult, skipRoomCommandResult } = yield race({
                 faceRoomCommandResult: call(faceRoomCommand.bind(this)),
-                skipRoomCommandResult: call(skipRoomCommand.bind(this))
+                skipRoomCommandResult: call(avoidRoomCommand.bind(this))
             });
 
             console.log(skipRoomCommandResult, faceRoomCommandResult);

@@ -6,26 +6,27 @@ import { all, delay, call } from "redux-saga/effects";
 import { queue } from "../../../../core/utils";
 
 export const dealRoomCardsCommand: FunctionalCommand = (
-    function* dealRoomCardsCommand(...cardsModels: CardModel[]) {
+    function* dealRoomCardsCommand(...roomCardsModels: CardModel[]) {
         const world = this.world!;
-        const cards = cardsModels
-            .map(cardModel => world.cards.find(card => card.model === cardModel))
+        const roomCards = roomCardsModels
+            .map(roomCardModel => world.cards.find(card => card.model === roomCardModel))
             .filter(card => !!card);
 
-        yield all(cards.map((card, i) => (
+        yield all(roomCardsModels.map((roomCardModel, i) => (
             queue([
                 delay(i * 200),
-                call(dealRoomCardCommand.bind(this, card))
+                call(dealRoomCardCommand.bind(this, roomCardModel))
             ])
         )));
 
-        yield all(cards.map(card => card.animateFlip(world.camera)));
+        yield all(roomCards.map(roomCard => roomCard.animateFlip(world.camera)));
     }
 );
 
 const dealRoomCardCommand: FunctionalCommand = (
-    function* dealRoomCardCommand(card: PerspectiveCard) {
+    function* dealRoomCardCommand(roomCardModel: CardModel) {
         const world = this.world!;
+        const card = world.cards.find(card => card.model === roomCardModel);
         const roundModel = this.model.round!;
         const freeRoomCardSpace = roundModel.pickFreeRoomCardSpace();
 
