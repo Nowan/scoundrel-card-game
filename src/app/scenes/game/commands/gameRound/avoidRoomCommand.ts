@@ -9,7 +9,6 @@ export const avoidRoomCommand: FunctionalCommand = (
             console.log("SCOOP START");
             yield call(scoopRoomCardsCommand.bind(this, ...roomCards));
             console.log("SCOOP COMPLETE");
-            yield new Promise(resolve => {/* temporary block execution */ })
 
             // yield call(discardRoomCardsCommand.bind(this, ...roomCards))
         }

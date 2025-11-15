@@ -30,6 +30,7 @@ export class PerspectiveCard extends PerspectiveMesh {
 
         this.model = model;
         this.side = CardSide.FRONT;
+        this.zIndex = 2;
 
         this._sideToTextureMap = new Map<CardSide, Texture>([
             [CardSide.BACK, Texture.from("assets/textures/cards-backs/default.png")],

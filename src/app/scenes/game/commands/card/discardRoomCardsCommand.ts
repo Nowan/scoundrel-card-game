@@ -25,7 +25,7 @@ const discardRoomCardCommand: FunctionalCommand = (
         if (card && roundModel.roomCards.includes(card.model)) {
             roundModel.roomCards[roundModel.roomCards.indexOf(card.model)] = null;
 
-            yield animate(card.position3D, world.layout.slots.discardCards.position3D, {
+            yield animate(card.position3D, world.layout.slots.discardDeck.position3D, {
                 duration: 1,
                 onUpdate: () => card.updatePerspective(world.camera)
             });

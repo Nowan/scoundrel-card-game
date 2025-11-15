@@ -6,7 +6,9 @@ import type { GameModel } from "../../../models";
 export const CARD_WIDTH = 352;
 export const CARD_HEIGHT = 512;
 
-export const CARDS_SPACING = CARD_WIDTH * 0.1;
+export const ROOM_CARDS_GAP_X = CARD_WIDTH * 0.1;
+
+export const DECK_CARDS_GAP_Z = CARD_WIDTH * 0.01;
 
 export class GameWorldLayout extends Container {
     readonly slots: GameWorldLayoutSlots;
@@ -15,10 +17,18 @@ export class GameWorldLayout extends Container {
         super();
 
         this.slots = {
-            dungeonCards: this._createLayoutSlot({ x: -CARD_WIDTH * 1.5, y: -CARD_HEIGHT * 1.2, z: 0 }),
+            dungeonDeck: this._createLayoutSlot({ x: -CARD_WIDTH * 1.5, y: -CARD_HEIGHT * 1.2, z: 0 }),
             roomCards: this._createRoomCardsSlots(numberOfRoomCards),
-            discardCards: this._createLayoutSlot({ x: CARD_WIDTH * 0.5, y: -CARD_HEIGHT * 1.2, z: 0 }),
+            discardDeck: this._createLayoutSlot({ x: CARD_WIDTH * 0.5, y: -CARD_HEIGHT * 1.2, z: 0 }),
             cardSpawn: this._createLayoutSlot({ x: -CARD_WIDTH * 1.5, y: -CARD_HEIGHT * 1.2, z: 1000 })
+        }
+    }
+
+    getDungeonCardPosition(ordinal: number = 0) {
+        const dungeonDeckPosition = this.slots.dungeonDeck.position3D;
+        return {
+            ...dungeonDeckPosition,
+            z: ordinal * DECK_CARDS_GAP_Z
         }
     }
 
@@ -27,7 +37,7 @@ export class GameWorldLayout extends Container {
             .fill(null)
             .map((_, i) => (
                 this._createLayoutSlot({
-                    x: (i - 2) * (CARD_WIDTH + CARDS_SPACING) + CARDS_SPACING * 0.5,
+                    x: (i - 2) * (CARD_WIDTH + ROOM_CARDS_GAP_X) + ROOM_CARDS_GAP_X * 0.5,
                     y: 0,
                     z: 0
                 })
@@ -42,9 +52,9 @@ export class GameWorldLayout extends Container {
 }
 
 export type GameWorldLayoutSlots = {
-    dungeonCards: GameWorldLayoutSlot,
+    dungeonDeck: GameWorldLayoutSlot,
     roomCards: FixedLengthArray<GameWorldLayoutSlot, typeof GameModel["CARDS_DEALT_PER_ROOM"]>,
-    discardCards: GameWorldLayoutSlot,
+    discardDeck: GameWorldLayoutSlot,
     cardSpawn: GameWorldLayoutSlot
 }
 
