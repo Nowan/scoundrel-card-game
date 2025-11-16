@@ -24,12 +24,16 @@ export class GameWorldLayout extends Container {
         }
     }
 
-    getDungeonCardPosition(ordinal: number = 0) {
+    getDungeonDeckCardPosition(ordinal: number = 0): PointData3D {
         const dungeonDeckPosition = this.slots.dungeonDeck.position3D;
         return {
             ...dungeonDeckPosition,
             z: ordinal * DECK_CARDS_GAP_Z
         }
+    }
+
+    getDungeonDeckCardZIndex(ordinal: number = 0): number {
+        return 2 + ordinal * 0.01;
     }
 
     private _createRoomCardsSlots(numberOfRoomCards: number): GameWorldLayoutSlots["roomCards"] {

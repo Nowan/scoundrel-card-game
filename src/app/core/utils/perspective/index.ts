@@ -1,3 +1,4 @@
 export * from "./PerspectiveCamera";
 export * from "./PointData3D";
 export * from "./PerspectiveCameraRay";
+export * from "./ObservablePoint3D";

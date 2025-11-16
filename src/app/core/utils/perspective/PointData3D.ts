@@ -1,3 +1,5 @@
 import { PointData } from "pixi.js";
 
-export type PointData3D = PointData & { z: number };
+export interface PointData3D extends PointData {
+    z: number
+};

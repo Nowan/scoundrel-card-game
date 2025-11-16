@@ -1,9 +1,8 @@
-import { animate } from "motion";
 import { CardModel } from "../../models";
 import { FunctionalCommand } from "../Command";
-import type { PerspectiveCard } from "../../components/card";
 import { all, delay, call } from "redux-saga/effects";
 import { queue } from "../../../../core/utils";
+import { animate } from "animejs";
 
 export const dealRoomCardsCommand: FunctionalCommand = (
     function* dealRoomCardsCommand(...roomCardsModels: CardModel[]) {
@@ -36,7 +35,8 @@ const dealRoomCardCommand: FunctionalCommand = (
             roundModel.dungeonCards.splice(roundModel.dungeonCards.indexOf(card.model), 1);
             roundModel.roomCards[freeRoomCardSpace] = card.model;
 
-            yield animate(card.position3D, freeRoomCardSpaceSlot.position3D, {
+            yield animate(card.position3D, {
+                ...freeRoomCardSpaceSlot.position3D,
                 duration: 1,
                 onUpdate: () => card.updatePerspective(world.camera)
             });

@@ -15,7 +15,7 @@ export class GameRoundModel {
         this._rng = seedrandom(seed);
 
         this.seed = seed;
-        this.dungeonCards = shuffle(composeCardsDeck(), this._rng);
+        this.dungeonCards = composeCardsDeck();//shuffle(composeCardsDeck(), this._rng);
         this.roomCards = Array(GameModel.CARDS_DEALT_PER_ROOM).fill(null) as GameRoundModel["roomCards"];
     }
 
