@@ -8,11 +8,12 @@ export function* animateLiftDungeonDeck(height: number): Generator<any, void> {
     const timeline = createTimeline({ autoplay: false });
     const commandContext = yield* getCommandContext();
     const { world, model } = commandContext as NonNullableFields<CommandContext>;
-    const dungeonCards = world.cards.filter(card => model.round!.dungeonCards.includes(card.model));
+    const roundModel = model.round!;
 
     try {
-        for (let i = 0; i < dungeonCards.length; i++) {
-            const dungeonCard = dungeonCards[i];
+        for (let i = 0; i < roundModel.dungeonCards.length; i++) {
+            const dungeonCardModel = roundModel.dungeonCards[i];
+            const dungeonCard = world.cards.find(predicateCard => predicateCard.model === dungeonCardModel)!;
             const dungeonCardZ = world.layout.getDungeonDeckCardPosition(i).z + height;
 
             timeline.add(

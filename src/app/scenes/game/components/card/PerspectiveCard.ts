@@ -46,25 +46,6 @@ export class PerspectiveCard extends PerspectiveMesh {
         return this.model.suit;
     }
 
-    public flip(camera: PerspectiveCamera) {
-        switch (this.side) {
-            case CardSide.FRONT:
-                this.rotation3D.y = 180;
-                this.updatePerspective(camera);
-                break;
-            case CardSide.BACK:
-                this.rotation3D.y = 0;
-                this.updatePerspective(camera);
-        }
-    }
-
-    public async animateFlip(camera: PerspectiveCamera) {
-        switch (this.side) {
-            case CardSide.FRONT: return await this._animateFlipToBackFace(camera);
-            case CardSide.BACK: return await this._animateFlipToFrontFace(camera);
-        }
-    }
-
     public updatePerspective(camera: PerspectiveCamera) {
         const corners = camera.transform(this.corners3D, this.position3D, this.rotation3D);
 
@@ -76,20 +57,6 @@ export class PerspectiveCard extends PerspectiveMesh {
         );
 
         this._updateSide(corners);
-    }
-
-    private async _animateFlipToFrontFace(camera: PerspectiveCamera) {
-        await animate(this.rotation3D, { y: 0 }, {
-            duration: 1,
-            onUpdate: () => this.updatePerspective(camera)
-        });
-    }
-
-    private async _animateFlipToBackFace(camera: PerspectiveCamera) {
-        await animate(this.rotation3D, { y: 180 }, {
-            duration: 1,
-            onUpdate: () => this.updatePerspective(camera)
-        });
     }
 
     private _updateSide(corners: [PointData3D, PointData3D, PointData3D, PointData3D]) {

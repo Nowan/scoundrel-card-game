@@ -21,8 +21,6 @@ export const startNewGameRoundCommand: FunctionalCommand = (
                 skipRoomCommandResult: call(avoidRoomCommand.bind(this))
             });
 
-            console.log(skipRoomCommandResult, faceRoomCommandResult);
-
             for (let i = 0; i < roundModel.roomCards.length; i++) {
                 roundModel.roomCards[i] = null;
             }

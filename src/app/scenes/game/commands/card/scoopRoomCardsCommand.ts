@@ -133,6 +133,7 @@ function* acceptDepositedRoomCards(draggedCardsStack: DraggedCardsStack) {
         roundModel.roomCards[i] = null;
     }
 
+
     for (let i = 0; i < roundModel.dungeonCards.length; i++) {
         const dungeonCardModel = roundModel.dungeonCards[i]!;
         const dungeonCard = world.cards.find(predicateCard => predicateCard.model === dungeonCardModel)!;

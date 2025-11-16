@@ -18,7 +18,12 @@ export const dealRoomCardsCommand: FunctionalCommand = (
             ])
         )));
 
-        yield all(roomCards.map(roomCard => roomCard.animateFlip(world.camera)));
+        yield all(roomCards.map(roomCard => (
+            animate(roomCard.rotation3D, {
+                y: 0,
+                onUpdate: () => roomCard.updatePerspective(world.camera)
+            }).then()
+        )));
     }
 );
 
@@ -37,7 +42,7 @@ const dealRoomCardCommand: FunctionalCommand = (
 
             yield animate(card.position3D, {
                 ...freeRoomCardSpaceSlot.position3D,
-                duration: 1,
+                duration: 1000,
                 onUpdate: () => card.updatePerspective(world.camera)
             });
         }
