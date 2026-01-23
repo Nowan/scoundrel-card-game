@@ -22,7 +22,7 @@
         "prepare": "husky install"
     },
     "dependencies": {
-        "animejs": "^4.2.2",
+        "animejs": "^4.3.3",
         "gl-matrix": "^3.4.4",
         "mobx": "^6.15.0",
         "motion": "^12.23.24",
